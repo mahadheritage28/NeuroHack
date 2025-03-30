@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <title>Disease Prediction</title>
+    <style>
+      /* Global Styles */
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #ffe6e6;
+        margin: 0;
+        padding: 0;
+        color: #333;
+      }
+
+      /* Adjust container position below navbar */
+      .container {
+        max-width: 800px;
+        margin: 100px auto 20px; /* Added top margin to move below navbar */
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+      }
+
+      /* Ensure other sections are not hidden under navbar */
+      #symptom-form,
+      #prediction-result,
+      #doctor-suggestion {
+        margin-top: 50px; /* Adjust spacing if needed */
+      }
+
+      /* If navbar height changes, adjust body padding */
+      body {
+        padding-top: 50px; /* Matches navbar height to prevent overlap */
+      }
+
+      h1,
+      h2 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+
+      /* Symptom Selection Form */
+      #symptom-form {
+        margin-bottom: 20px;
+      }
+
+      .custom-dropdown {
+        position: relative;
+      }
+
+      .custom-dropdown button {
+        display: block;
+        width: 100%;
+        background-color: #009688;
+        color: #fff;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      .custom-dropdown ul {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 10;
+        padding: 10px 0;
+      }
+
+      .custom-dropdown ul li {
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .custom-dropdown ul li input[type="checkbox"] {
+        margin: 0;
+      }
+
+      .custom-dropdown ul li:hover {
+        background-color: #f2f2f2;
+      }
+
+      .selected-symptoms {
+        margin-top: 15px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+      }
+
+      .selected-symptoms ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      /* Buttons */
+      .btn {
+        background-color: #009688;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 10px;
+      }
+
+      .btn:hover {
+        background-color: #00796b;
+      }
+
+      /* Prediction Result */
+      #prediction-result {
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        color: #333;
+        font-size: 18px;
+      }
+
+      /* Doctor Suggestions */
+      #doctor-suggestion {
+        margin-top: 20px;
+        display: none;
+      }
+
+      .doctor-card {
+        background-color: #fff;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .doctor-card h3 {
+        margin-top: 0;
+      }
+
+      .doctor-card button {
+        background-color: #ffb74d; /* Light orange color */
+        color: white; /* White text color */
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        transition: background-color 0.3s, transform 0.3s;
+      }
+
+      .doctor-card button:hover {
+        background-color: #ff9800; /* Darker orange for hover effect */
+        transform: scale(1.05); /* Slightly enlarge the button on hover */
+      }
+
+      /* Appointment Booking Form */
+      .modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 500px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        padding: 20px;
+      }
+
+      .modal-content {
+        max-height: 70vh;
+        overflow-y: auto;
+      }
+
+      .scrollable-form {
+        padding: 15px;
+      }
+
+      fieldset {
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+      }
+
+      legend {
+        font-weight: bold;
+      }
+
+      input[type="text"],
+      input[type="tel"],
+      input[type="email"],
+      select {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+
+      input[type="text"]:focus,
+      input[type="tel"]:focus,
+      input[type="email"]:focus,
+      select:focus {
+        border-color: #009688;
+        outline: none;
+        box-shadow: 0 0 5px rgba(0, 150, 136, 0.5);
+      }
+
+      .form-actions {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      /* Overlay Effect for Modal */
+      .modal + .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 999;
+      }
+
+      .site-header {
+        display: flex;
+        align-items: center;
+        padding: 20px; /* Adjust padding as needed */
+        background-color: #ffe6e6; /* Set the background color to #ffe6e6 */
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+      }
+
+      .logo-img {
+        width: 80px; /* Adjust image size as needed */
+        height: auto; /* Maintain aspect ratio */
+        margin-right: 15px; /* Space between image and name */
+      }
+
+      .logo-name {
+        font-size: 24px;
+        font-weight: bold;
+        color: #009688; /* Set the text color to #009688 */
+      }
+      .btn-upload {
+        margin-top: 20px;
+      }
+      .result {
+        margin-top: 30px;
+        padding: 15px;
+        border-radius: 10px;
+      }
+      .result.success {
+        background-color: #d4edda;
+        color: #155724;
+      }
+      .result.error {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+      /* Navbar Styles */
+      .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px 20px;
+        background-color: #ffe6e6;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+      }
+
+      /* Logo Section */
+      .navbar-logo {
+        display: flex;
+        align-items: center;
+      }
+
+      .logo-img {
+        width: 50px;
+        height: auto;
+        margin-right: 8px;
+      }
+
+      .logo-name {
+        font-size: 22px;
+        font-weight: bold;
+        color: #009688;
+      }
+
+      /* Navbar Links */
+      .navbar-links {
+        list-style: none;
+        display: flex;
+        gap: 15px; /* Adjusted spacing between links */
+        margin-left: auto; /* Push links to the right */
+        padding: 0;
+      }
+
+      .navbar-links li {
+        display: inline;
+      }
+
+      .navbar-links a {
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: 500;
+        color: #333;
+        padding: 8px 12px;
+        border-radius: 8px;
+        transition: background-color 0.3s ease, color 0.3s;
+      }
+
+      .navbar-links a:hover {
+        background-color: #ffcccc;
+        color: #000;
+      }
+
+      /* Responsive Navbar */
+      @media (max-width: 768px) {
+        .navbar {
+          flex-direction: column;
+          padding: 15px;
+        }
+
+        .navbar-logo {
+          justify-content: center;
+          width: 100%;
+          margin-bottom: 10px;
+        }
+
+        .navbar-links {
+          flex-direction: column;
+          align-items: center;
+          width: 100%;
+          margin: 10px 0;
+        }
+
+        .navbar-links a {
+          display: block;
+          width: 100%;
+          text-align: center;
+        }
+      }
+      #doctor-suggestions {
+        max-height: 300px; /* Set fixed height */
+        overflow-y: auto; /* Enable vertical scrolling */
+        padding: 10px;
+        border: 1px solid #ccc; /* Optional: adds a border for clarity */
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="navbar-logo">
+        <img src="static/AuraMedlogo.png" alt="AuraMed Logo" class="logo-img" />
+        <span class="logo-name">AuraMed</span>
+      </div>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/home"><i class="fas fa-home"></i> Home</a>
+        </li>
+        <li>
+          <a href=""><i class=""></i> </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="container">
+      <h1><i class="fas fa-notes-medical"></i> Know Your Symptom</h1>
+      <form id="symptom-form">
+        <label for="symptoms"
+          ><i class="fas fa-search"></i> Select Symptoms:</label
+        >
+        <div class="custom-dropdown">
+          <button type="button" onclick="toggleDropdown()">
+            <i class="fas fa-chevron-down"></i> Select Symptoms
+          </button>
+          <ul id="symptom-list"></ul>
+          <div class="dropdown-actions">
+            <button type="button" class="btn" onclick="closeDropdown()">
+              Done
+            </button>
+          </div>
+        </div>
+
+        <div
+          id="selected-symptoms"
+          class="selected-symptoms"
+          style="display: none"
+        >
+          <strong><i class="fas fa-list"></i> Selected Symptoms:</strong>
+          <ul id="selected-symptoms-list"></ul>
+          <button
+            type="button"
+            class="btn clear-btn"
+            onclick="clearSelectedSymptoms()"
+            style="background-color: #ffdab9; color: black; margin-top: 10px"
+          >
+            <i class="fas fa-times-circle"></i> Clear Symptoms
+          </button>
+        </div>
+        <button type="button" class="btn" onclick="predictDisease()">
+          <i class="fas fa-stethoscope"></i> Predict Disease
+        </button>
+      </form>
+
+      <div
+        id="prediction-result"
+        style="text-align: center; margin-top: 20px"
+      ></div>
+
+      <div id="doctor-suggestion">
+        <h2><i class="fas fa-user-md"></i> Doctor Suggestions</h2>
+        <button type="button" class="btn" onclick="fetchDoctors()">
+          <i class="fas fa-search-location"></i> Find Doctors
+        </button>
+        <div id="doctor-suggestions"></div>
+      </div>
+    </div>
+
+    <!-- Appointment Booking Form -->
+    <div id="appointment-form" class="modal" style="display: none">
+      <h2><i class="fas fa-calendar-check"></i> Book Appointment</h2>
+      <div class="modal-content">
+        <div class="scrollable-form">
+          <form id="appointmentForm">
+            <fieldset>
+              <legend><i class="fas fa-user-md"></i> Doctor Details</legend>
+              <p>
+                <strong>Doctor:</strong> <span id="form-doctor-name"></span>
+              </p>
+              <p>
+                <strong>Specialization:</strong>
+                <span id="form-doctor-specialization"></span>
+              </p>
+              <p>
+                <strong>Hospital:</strong>
+                <span id="form-doctor-hospital"></span>
+              </p>
+            </fieldset>
+            <fieldset>
+              <legend><i class="fas fa-clock"></i> Appointment Details</legend>
+              <label for="appointmentDate"
+                ><i class="fas fa-calendar-alt"></i> Select Date:</label
+              >
+              <select id="appointmentDate" required></select>
+
+              <label for="appointmentTime"
+                ><i class="fas fa-clock"></i> Select Time:</label
+              >
+              <select id="appointmentTime" required></select>
+            </fieldset>
+            <fieldset>
+              <legend><i class="fas fa-user"></i> Your Details</legend>
+              <label for="userName"
+                ><i class="fas fa-user"></i> Your Name:</label
+              >
+              <input
+                type="text"
+                id="userName"
+                placeholder="Enter your full name"
+                required
+              />
+
+              <label for="userContact"
+                ><i class="fas fa-phone"></i> Contact Number:</label
+              >
+              <input
+                type="tel"
+                id="userContact"
+                placeholder="Enter your phone number"
+                required
+                pattern="[0-9]{10}"
+              />
+
+              <label for="userEmail"
+                ><i class="fas fa-envelope"></i> Email Address:</label
+              >
+              <input
+                type="email"
+                id="userEmail"
+                placeholder="Enter your email address"
+                required
+              />
+            </fieldset>
+            <div class="form-actions">
+              <button type="submit">
+                <i class="fas fa-check"></i> Confirm
+              </button>
+              <button type="button" onclick="closeModal('appointment-form')">
+                <i class="fas fa-times"></i> Close
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <h1>Skin Cancer Prediction</h1>
+      <p>Upload a dermoscopic image to check for signs of skin cancer.</p>
+
+      <form id="uploadForm">
+        <label for="image">Choose an Image:</label>
+        <input type="file" id="image" name="image" accept="image/*" required />
+        <button type="submit" class="btn btn-upload">Upload and Predict</button>
+      </form>
+
+      <div id="result" class="result" style="display: none"></div>
+    </div>
+
+    <script>
+      const symptomsList = [
+        "sweating",
+        "chest_pain",
+        "itching",
+        "skin_rash",
+        "nodal_skin_eruptions",
+        "continuous_sneezing",
+        "shivering",
+        "chills",
+        "joint_pain",
+        "stomach_pain",
+        "acidity",
+        "ulcers_on_tongue",
+        "muscle_wasting",
+        "vomiting",
+        "burning_micturition",
+        "spotting_ urination",
+        "fatigue",
+        "weight_gain",
+        "anxiety",
+        "cold_hands_and_feets",
+        "mood_swings",
+        "weight_loss",
+        "restlessness",
+        "lethargy",
+        "patches_in_throat",
+        "irregular_sugar_level",
+        "cough",
+        "high_fever",
+        "sunken_eyes",
+        "breathlessness",
+        "sweating",
+        "dehydration",
+        "indigestion",
+        "headache",
+        "yellowish_skin",
+        "dark_urine",
+        "nausea",
+        "loss_of_appetite",
+        "pain_behind_the_eyes",
+        "back_pain",
+        "constipation",
+        "abdominal_pain",
+        "diarrhoea",
+        "mild_fever",
+        "yellow_urine",
+        "yellowing_of_eyes",
+        "acute_liver_failure",
+        "fluid_overload",
+        "swelling_of_stomach",
+        "swelled_lymph_nodes",
+        "malaise",
+        "blurred_and_distorted_vision",
+        "phlegm",
+        "throat_irritation",
+        "redness_of_eyes",
+        "sinus_pressure",
+        "runny_nose",
+        "congestion",
+        "chest_pain",
+        "weakness_in_limbs",
+        "fast_heart_rate",
+        "pain_during_bowel_movements",
+        "pain_in_anal_region",
+        "bloody_stool",
+        "irritation_in_anus",
+        "neck_pain",
+        "dizziness",
+        "cramps",
+        "bruising",
+        "obesity",
+        "swollen_legs",
+        "swollen_blood_vessels",
+        "puffy_face_and_eyes",
+        "enlarged_thyroid",
+        "brittle_nails",
+        "swollen_extremeties",
+        "excessive_hunger",
+        "extra_marital_contacts",
+        "drying_and_tingling_lips",
+        "slurred_speech",
+        "knee_pain",
+        "hip_joint_pain",
+        "muscle_weakness",
+        "stiff_neck",
+        "swelling_joints",
+        "movement_stiffness",
+        "spinning_movements",
+        "loss_of_balance",
+        "unsteadiness",
+        "weakness_of_one_body_side",
+        "loss_of_smell",
+        "bladder_discomfort",
+        "foul_smell_of urine",
+        "continuous_feel_of_urine",
+        "passage_of_gases",
+        "internal_itching",
+        "toxic_look_(typhos)",
+        "depression",
+        "irritability",
+        "muscle_pain",
+        "altered_sensorium",
+        "red_spots_over_body",
+        "belly_pain",
+        "abnormal_menstruation",
+        "dischromic _patches",
+        "watering_from_eyes",
+        "increased_appetite",
+        "polyuria",
+        "family_history",
+        "mucoid_sputum",
+        "rusty_sputum",
+        "lack_of_concentration",
+        "visual_disturbances",
+        "receiving_blood_transfusion",
+        "receiving_unsterile_injections",
+        "coma",
+        "stomach_bleeding",
+        "distention_of_abdomen",
+        "history_of_alcohol_consumption",
+        "fluid_overload",
+        "blood_in_sputum",
+        "prominent_veins_on_calf",
+        "palpitations",
+        "painful_walking",
+        "pus_filled_pimples",
+        "blackheads",
+        "scurring",
+        "skin_peeling",
+        "silver_like_dusting",
+        "small_dents_in_nails",
+        "inflammatory_nails",
+        "blister",
+        "red_sore_around_nose",
+        "yellow_crust_ooze",
+      ];
+
+      const symptomListContainer = document.getElementById("symptom-list");
+      const selectedSymptomsContainer =
+        document.getElementById("selected-symptoms");
+      const selectedSymptomsList = document.getElementById(
+        "selected-symptoms-list"
+      );
+      const selectedSymptoms = new Set();
+
+      symptomsList.forEach((symptom) => {
+        const listItem = document.createElement("li");
+        listItem.innerHTML = `<input type="checkbox" value="${symptom}" onchange="updateSelectedSymptoms(this)"> ${symptom.replace(
+          /_/g,
+          " "
+        )}`;
+        symptomListContainer.appendChild(listItem);
+      });
+
+      function toggleDropdown() {
+        const dropdown = symptomListContainer;
+        dropdown.style.display =
+          dropdown.style.display === "block" ? "none" : "block";
+      }
+
+      function updateSelectedSymptoms(input) {
+        if (input.checked) {
+          selectedSymptoms.add(input.value);
+        } else {
+          selectedSymptoms.delete(input.value);
+        }
+
+        displaySelectedSymptoms();
+      }
+
+      function displaySelectedSymptoms() {
+        selectedSymptomsList.innerHTML = "";
+        selectedSymptoms.forEach((symptom) => {
+          const listItem = document.createElement("li");
+          listItem.textContent = symptom.replace(/_/g, " ");
+          selectedSymptomsList.appendChild(listItem);
+        });
+
+        selectedSymptomsContainer.style.display =
+          selectedSymptoms.size > 0 ? "block" : "none";
+      }
+
+      function clearSelectedSymptoms() {
+        selectedSymptoms.clear();
+        const checkboxes = symptomListContainer.querySelectorAll(
+          'input[type="checkbox"]'
+        );
+        checkboxes.forEach((checkbox) => (checkbox.checked = false));
+        displaySelectedSymptoms();
+      }
+      function closeDropdown() {
+        document.getElementById("symptom-list").style.display = "none";
+      }
+
+      async function predictDisease() {
+        const selectedSymptoms = Array.from(
+          document.querySelectorAll("#symptom-list input:checked")
+        ).map((input) => input.value);
+
+        if (selectedSymptoms.length === 0) {
+          alert("Please select at least one symptom.");
+          return;
+        }
+
+        try {
+          const response = await fetch("/disease/predict_disease", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ symptoms: selectedSymptoms }),
+          });
+
+          if (!response.ok) {
+            const errorResponse = await response.json();
+            throw new Error(
+              `Error: ${errorResponse.error || response.statusText}`
+            );
+          }
+
+          const data = await response.json();
+          const predictedDisease = data.final_prediction;
+
+          document.getElementById(
+            "prediction-result"
+          ).innerHTML = `<h2>Predicted Disease: ${predictedDisease}</h2>`;
+          document.getElementById("doctor-suggestion").style.display = "block";
+        } catch (error) {
+          alert(`Failed to predict disease: ${error.message}`);
+          console.error("Error in predictDisease function:", error);
+        }
+      }
+
+      async function fetchDoctors() {
+        const predictionResult =
+          document.getElementById("prediction-result").textContent;
+        const diseaseMatch = /Predicted Disease: (.+)/.exec(predictionResult);
+        const disease = diseaseMatch ? diseaseMatch[1] : null;
+
+        if (!disease) {
+          alert("Please predict a disease first.");
+          return;
+        }
+
+        const doctorSuggestions = document.getElementById("doctor-suggestions");
+        doctorSuggestions.innerHTML = ""; // Clear previous suggestions
+
+        try {
+          const response = await fetch("/get_doctors", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ disease }),
+          });
+
+          let data;
+          try {
+            // Attempt to parse response as JSON
+            data = await response.json();
+          } catch (jsonError) {
+            // If JSON parsing fails, log the raw text and handle as error
+            const rawText = await response.text();
+            console.error("API returned non-JSON response:", rawText);
+            doctorSuggestions.innerHTML = `<p style="color: red;">Invalid server response: ${rawText}</p>`;
+            return;
+          }
+
+          // Check if doctors array exists and is non-empty
+          if (!Array.isArray(data.doctors) || data.doctors.length === 0) {
+            doctorSuggestions.innerHTML =
+              "<p>No doctors currently available for this condition.</p>";
+            return;
+          }
+
+          const doctorsHtml = data.doctors
+            .map((doctor) => {
+              if (typeof doctor !== "object") {
+                console.error("Invalid doctor data:", doctor);
+                return '<div class="doctor-card">Invalid doctor information</div>';
+              }
+
+              const achievements = Array.isArray(
+                doctor.description?.achievements
+              )
+                ? doctor.description.achievements
+                    .map((ach) => `<li>${ach}</li>`)
+                    .join("")
+                : "<li>No achievements available.</li>";
+
+              const degrees = Array.isArray(doctor.description?.degrees)
+                ? doctor.description.degrees
+                    .map((degree) => `<li>${degree}</li>`)
+                    .join("")
+                : "<li>No degrees listed.</li>";
+
+              return `
+                        <div class="doctor-card">
+                            <h3><i class="fas fa-user-md"></i> Dr. ${
+                              doctor.name || "Name not available"
+                            }</h3>
+                            <p><strong><i class="fas fa-stethoscope"></i> Specialization:</strong> ${
+                              doctor.specialization ||
+                              "Specialization not available"
+                            }</p>
+                            <p><strong><i class="fas fa-briefcase-medical"></i> Experience:</strong> ${
+                              doctor.description?.experience ||
+                              "No experience details available."
+                            }</p>
+                            <p><strong><i class="fas fa-graduation-cap"></i> Degrees:</strong></p>
+                            <ul>${degrees}</ul>
+                            <p><strong><i class="fas fa-award"></i> Achievements:</strong></p>
+                            <ul>${achievements}</ul>
+                            <p><strong><i class="fas fa-phone-alt"></i> Phone Number:</strong> ${
+                              doctor.phone_number || "Not available"
+                            }</p>
+                            <p><strong><i class="fas fa-hospital"></i> Hospital:</strong> ${
+                              doctor.hospital || "Not available"
+                            }</p>
+                            <p><strong><i class="fas fa-money-bill-wave"></i> Fees:</strong> ₹${
+                              doctor.fees || "Not specified"
+                            }</p>
+                            <button onclick="openAppointmentForm('${encodeURIComponent(
+                              JSON.stringify(doctor)
+                            )}')">
+                                <i class="fas fa-calendar-check"></i> Book Appointment
+                            </button>
+                        </div>
+                    `;
+            })
+            .join("");
+
+          doctorSuggestions.innerHTML = doctorsHtml;
+        } catch (error) {
+          console.error("Error in fetchDoctors function:", error);
+          doctorSuggestions.innerHTML = `<p style="color: red;">Error fetching doctors. Please try again later.</p>`;
+        }
+      }
+
+      function openAppointmentForm(doctorString) {
+        try {
+          const doctor = JSON.parse(decodeURIComponent(doctorString)); // Decode and parse the doctor data
+
+          document.getElementById("form-doctor-name").innerText = doctor.name;
+          document.getElementById("form-doctor-specialization").innerText =
+            doctor.specialization;
+          document.getElementById("form-doctor-hospital").innerText =
+            doctor.hospital;
+
+          const availability = doctor.availability;
+          const dateSelect = document.getElementById("appointmentDate");
+          dateSelect.innerHTML = '<option value="">Select Date</option>';
+          const timeSelect = document.getElementById("appointmentTime");
+          timeSelect.innerHTML = '<option value="">Select Time</option>'; // Clear previous times
+
+          Object.keys(availability).forEach((date) => {
+            const dateOption = document.createElement("option");
+            dateOption.value = date;
+            dateOption.innerText = date;
+            dateSelect.appendChild(dateOption);
+          });
+
+          dateSelect.onchange = function () {
+            const selectedDate = dateSelect.value;
+            timeSelect.innerHTML = '<option value="">Select Time</option>'; // Clear previous time options
+
+            if (selectedDate && availability[selectedDate]) {
+              Object.keys(availability[selectedDate]).forEach((time) => {
+                const timeOption = document.createElement("option");
+                timeOption.value = time;
+                timeOption.innerText =
+                  time +
+                  " - Available slots: " +
+                  availability[selectedDate][time];
+                timeSelect.appendChild(timeOption);
+              });
+            }
+          };
+
+          document.getElementById("appointment-form").style.display = "block";
+          document.getElementById("doctor-suggestions").style.display = "none";
+        } catch (error) {
+          console.error("Error in openAppointmentForm:", error);
+          alert("There was an error processing the doctor's information.");
+        }
+      }
+
+      function closeModal(id) {
+        document.getElementById(id).style.display = "none";
+      }
+
+      document.getElementById("appointmentForm").onsubmit = function (event) {
+        event.preventDefault(); // Prevent form from submitting
+        bookAppointment(event); // Call the bookAppointment function
+      };
+
+      function bookAppointment(event) {
+        // Get the patient's details from the form
+        const name = document.getElementById("userName").value;
+        const phone = document.getElementById("userContact").value;
+        const email = document.getElementById("userEmail").value;
+        const date = document.getElementById("appointmentDate").value;
+        const time = document.getElementById("appointmentTime").value; // Fixed .value
+
+        // Get the doctor's details from the DOM
+        const doctorName =
+          document.getElementById("form-doctor-name").innerText;
+        const doctorSpecialization = document.getElementById(
+          "form-doctor-specialization"
+        ).innerText;
+        const doctorHospital = document.getElementById(
+          "form-doctor-hospital"
+        ).innerText;
+
+        // Combine date and time into one value
+        const dateTime = `${date}T${time}`;
+
+        // Check if all required fields are filled
+        if (
+          !name ||
+          !phone ||
+          !email ||
+          !date ||
+          !time ||
+          !doctorName ||
+          !doctorSpecialization ||
+          !doctorHospital
+        ) {
+          alert("Please fill in all the fields.");
+          return;
+        }
+
+        // Send data to the backend
+        fetch("/doclist/appointment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            patient_name: name,
+            doctor_name: doctorName,
+            doctor_specialization: doctorSpecialization,
+            doctor_hospital: doctorHospital,
+            phone: phone,
+            email: email,
+            date_time: dateTime,
+          }),
+        })
+          .then((response) => response.json())
+          .then((result) => {
+            if (result.message) {
+              alert(result.message); // Show success message
+            } else {
+              alert("Appointment booked successfully!");
+            }
+
+            // Reload the page to show the updated content (no redirect)
+            location.reload();
+
+            closeModal("appointment-form"); // Close the modal
+          })
+          .catch((err) => {
+            console.error("Error booking appointment:", err);
+            alert("There was an error booking the appointment.");
+          });
+      }
+
+      document
+        .getElementById("uploadForm")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault(); // Prevent the default form submission
+
+          const fileInput = document.getElementById("image");
+          const resultDiv = document.getElementById("result");
+
+          console.log("Form submission triggered.");
+
+          // Ensure a file is selected
+          if (!fileInput.files.length) {
+            console.error("No file selected.");
+            alert("Please select an image file.");
+            return;
+          }
+
+          console.log("File selected:", fileInput.files[0].name);
+
+          // Prepare the form data
+          const formData = new FormData();
+          formData.append("image", fileInput.files[0]);
+
+          try {
+            // Show a loading message
+            resultDiv.style.display = "block";
+            resultDiv.textContent = "Processing...";
+            console.log("Sending POST request to /predict.");
+
+            // Send the POST request to the backend
+            const response = await fetch("/predict", {
+              method: "POST",
+              body: formData,
+            });
+
+            console.log("POST request sent. Awaiting response...");
+
+            // Handle the response
+            if (!response.ok) {
+              console.error(
+                "Error in response from backend:",
+                response.status,
+                response.statusText
+              );
+              const errorData = await response.json();
+              throw new Error(
+                errorData.error || "An error occurred during prediction."
+              );
+            }
+
+            console.log("Response received from backend.");
+
+            const data = await response.json();
+            console.log("Prediction data:", data);
+
+            // Display only the final prediction
+            resultDiv.innerHTML = `
+        <h3>Final Prediction:</h3>
+        <p><strong>${data.Ensemble}</strong></p>
+      `;
+            console.log("Final prediction displayed on the frontend.");
+          } catch (error) {
+            // Display error message
+            console.error("Error during prediction:", error.message);
+            resultDiv.textContent = `Error: ${error.message}`;
+          } finally {
+            console.log("Form submission process completed.");
+          }
+        });
+    </script>
+  </body>
+</html>

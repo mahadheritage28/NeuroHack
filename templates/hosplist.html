@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+      rel="stylesheet"
+    />
+    <title>Test Slot Booking</title>
+    <style>
+      /* Global Styles */
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #ffe6e6;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+      }
+
+      .card {
+        display: flex;
+        align-items: center;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin: 10px 0;
+        padding: 20px;
+      }
+
+      .icon {
+        font-size: 40px;
+        color: #009688;
+        margin-right: 20px;
+      }
+
+      .popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        max-height: 80%;
+        overflow-y: auto;
+      }
+
+      .popup h2 {
+        margin-top: 0;
+      }
+
+      .popup button {
+        margin: 5px;
+        background-color: #009688;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      #overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        display: none;
+      }
+
+      .search-bar {
+        display: flex;
+        margin-bottom: 20px;
+      }
+
+      .search-bar input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #009688;
+        border-radius: 20px 0 0 20px; /* Rounded corners */
+        font-size: 16px;
+      }
+
+      .search-bar button {
+        background-color: #009688;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 0 20px 20px 0; /* Rounded corners */
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      .search-bar button:hover {
+        background-color: #00796b;
+      }
+
+      h1 {
+        color: #009688;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .card h2 {
+        margin: 0;
+        font-size: 20px;
+        color: #333;
+      }
+
+      .card p {
+        margin: 5px 0;
+        color: #666;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+      }
+
+      form label {
+        margin: 10px 0 5px;
+        font-weight: bold;
+      }
+
+      form input,
+      form select,
+      form button {
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      form button {
+        background-color: #009688;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+
+      form button:hover {
+        background-color: #00796b;
+      }
+      /* Navbar Styles */
+      .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px 20px;
+        background-color: #ffe6e6;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+      }
+
+      /* Logo Section */
+      .navbar-logo {
+        display: flex;
+        align-items: center;
+      }
+
+      .logo-img {
+        width: 50px;
+        height: auto;
+        margin-right: 8px;
+      }
+
+      .logo-name {
+        font-size: 22px;
+        font-weight: bold;
+        color: #009688;
+      }
+
+      /* Navbar Links */
+      .navbar-links {
+        list-style: none;
+        display: flex;
+        gap: 15px; /* Adjusted spacing between links */
+        margin-left: auto; /* Push links to the right */
+        padding: 0;
+      }
+
+      .navbar-links li {
+        display: inline;
+      }
+
+      .navbar-links a {
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: 500;
+        color: #333;
+        padding: 8px 12px;
+        border-radius: 8px;
+        transition: background-color 0.3s ease, color 0.3s;
+      }
+
+      .navbar-links a:hover {
+        background-color: #ffcccc;
+        color: #000;
+      }
+
+      /* Responsive Navbar */
+      @media (max-width: 768px) {
+        .navbar {
+          flex-direction: column;
+          padding: 15px;
+        }
+
+        .navbar-logo {
+          justify-content: center;
+          width: 100%;
+          margin-bottom: 10px;
+        }
+
+        .navbar-links {
+          flex-direction: column;
+          align-items: center;
+          width: 100%;
+          margin: 10px 0;
+        }
+
+        .navbar-links a {
+          display: block;
+          width: 100%;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="navbar-logo">
+        <img src="static/AuraMedlogo.png" alt="AuraMed Logo" class="logo-img" />
+        <span class="logo-name">AuraMed</span>
+      </div>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/home"><i class="fas fa-home"></i> Home</a>
+        </li>
+        <li>
+          <a href=""><i class=""></i> </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Hospitals List Page -->
+    <div class="container" id="hospitals-page">
+      <h1><i class="fas fa-hospital"></i> Hospitals</h1>
+      <div class="search-bar">
+        <input
+          type="text"
+          id="hospital-search"
+          placeholder="Search hospitals..."
+        />
+        <button onclick="searchHospitals()">
+          <i class="fas fa-search"></i> Search
+        </button>
+      </div>
+      <div class="container">
+        <h1><i class="fas fa-map-marker-alt"></i> Hospitals Near You</h1>
+        <div id="hospitals-list"></div>
+      </div>
+    </div>
+
+    <!-- Hospital Popup -->
+    <div id="hospital-popup" class="popup" style="display: none">
+      <h2 id="hospital-name-display">
+        <i class="fas fa-hospital-alt"></i>
+        <span id="hospital-name-display-text"></span>
+      </h2>
+      <input type="hidden" id="hospital-name" />
+      <button onclick="showTestSlotForm()">
+        <i class="fas fa-calendar-plus"></i> Book Test Slot
+      </button>
+      <button onclick="redirectToDocPage()">
+        <i class="fas fa-user-md"></i> Doctor Appointment
+      </button>
+      <button onclick="closePopup('hospital-popup')">
+        <i class="fas fa-times-circle"></i> Close
+      </button>
+    </div>
+
+    <!-- Test Slot Popup -->
+    <div id="test-slot-popup" class="popup">
+      <h2>
+        <i class="fas fa-calendar-day"></i> Book Test Slot for
+        <span id="hospital-name-display"></span>
+      </h2>
+      <form id="test-slot-form" onsubmit="submitTestSlot(event)">
+        <label for="test-type"><i class="fas fa-flask"></i> Test Type:</label>
+        <select id="test-type" required>
+          <option disabled selected>Select Test</option>
+        </select>
+
+        <p id="test-details"></p>
+
+        <label for="test-date"><i class="fas fa-calendar-alt"></i> Date:</label>
+        <select id="test-date" required>
+          <option disabled selected>Select a date</option>
+        </select>
+
+        <label for="test-time"><i class="fas fa-clock"></i> Time:</label>
+        <select id="test-time" required>
+          <option disabled selected>Select a time</option>
+        </select>
+
+        <label for="patient-name"><i class="fas fa-user"></i> Name:</label>
+        <input type="text" id="patient-name" required />
+
+        <label for="patient-phone"
+          ><i class="fas fa-phone-alt"></i> Phone:</label
+        >
+        <input type="tel" id="patient-phone" required />
+
+        <label for="patient-email"
+          ><i class="fas fa-envelope"></i> Email:</label
+        >
+        <input type="email" id="patient-email" required />
+
+        <label for="prescription-pdf"
+          ><i class="fas fa-file-pdf"></i> Upload Prescription:</label
+        >
+        <input
+          type="file"
+          id="prescription-pdf"
+          accept="application/pdf"
+          required
+        />
+
+        <button type="submit"><i class="fas fa-paper-plane"></i> Submit</button>
+      </form>
+      <button onclick="closePopup('test-slot-popup')">
+        <i class="fas fa-times-circle"></i> Close
+      </button>
+    </div>
+
+    <div id="overlay"></div>
+
+    <script>
+      function searchHospitals() {
+        const query = document
+          .getElementById("hospital-search")
+          .value.toLowerCase();
+        const hospitals = document.querySelectorAll("#hospitals-list .card");
+        hospitals.forEach((hospital) => {
+          hospital.style.display = hospital.textContent
+            .toLowerCase()
+            .includes(query)
+            ? ""
+            : "none";
+        });
+      }
+
+      function getLocationAndPopulateHospitals() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const userLat = position.coords.latitude;
+              const userLng = position.coords.longitude;
+
+              console.log(
+                "User Location: Latitude =",
+                userLat,
+                "Longitude =",
+                userLng
+              );
+
+              // Fetch nearby hospitals
+              fetchHospitals(userLat, userLng);
+            },
+            (error) => {
+              console.error("Error fetching user location:", error);
+              alert(
+                "Unable to retrieve your location. Please check location services."
+              );
+            }
+          );
+        } else {
+          alert("Geolocation is not supported by this browser.");
+        }
+      }
+
+      function fetchHospitals(userLat, userLng) {
+        console.log("Fetching hospitals for location:", { userLat, userLng });
+        fetch(`/get-hospitals?lat=${userLat}&lng=${userLng}`)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then((hospitals) => {
+            console.log("Fetched hospitals:", hospitals);
+            const hospitalList = document.getElementById("hospitals-list");
+            hospitalList.innerHTML = "";
+
+            if (hospitals.length === 0) {
+              hospitalList.innerHTML = "<p>No hospitals found nearby</p>";
+            } else {
+              hospitals.forEach((hospital) => {
+                // Create the card container
+                const card = document.createElement("div");
+                card.className = "card";
+
+                // Create the icon
+                const icon = document.createElement("i");
+                icon.className = "fas fa-clinic-medical icon";
+
+                // Create the hospital info container
+                const info = document.createElement("div");
+
+                // Add hospital name (clickable)
+                const name = document.createElement("h2");
+                name.innerText = hospital.name;
+                name.style.cursor = "pointer";
+                name.onclick = () => {
+                  showHospitalPopup(hospital.name);
+                  populateTestSlots(hospital.name);
+                };
+
+                // Add hospital address
+                const address = document.createElement("p");
+                address.innerText = `Address: ${hospital.address || "N/A"}`;
+
+                // Add hospital phone
+                const phone = document.createElement("p");
+                phone.innerText = `Phone: ${hospital.phone || "N/A"}`;
+
+                // Add hospital rating
+                const rating = document.createElement("p");
+                rating.innerText = `Rating: ${"⭐".repeat(
+                  Math.floor(hospital.rating)
+                )}`;
+
+                // Append details to info container
+                info.appendChild(name);
+                info.appendChild(address);
+                info.appendChild(phone);
+                info.appendChild(rating);
+
+                // Append icon and info to card
+                card.appendChild(icon);
+                card.appendChild(info);
+
+                // Append card to the hospital list
+                hospitalList.appendChild(card);
+              });
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching hospitals:", error);
+            alert(
+              "An error occurred while fetching hospitals. Please try again later."
+            );
+          });
+      }
+
+      function populateTestSlots(hospitalName) {
+        console.log("Populating test slots for hospital:", hospitalName);
+        fetch(`/get-tests?hospital=${hospitalName}`)
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Fetched test data:", data);
+
+            const testTypeDropdown = document.getElementById("test-type");
+            const testDetails = document.getElementById("test-details");
+            const dateDropdown = document.getElementById("test-date");
+            const timeDropdown = document.getElementById("test-time");
+
+            // Clear dropdowns
+            testTypeDropdown.innerHTML =
+              "<option disabled selected>Search and select a test type</option>";
+            dateDropdown.innerHTML = "";
+            timeDropdown.innerHTML = "";
+            testDetails.innerHTML = "";
+
+            // Flatten test availability data for easy search and display
+            const allTests = [];
+            for (const [category, tests] of Object.entries(data.tests)) {
+              for (const [testType, testData] of Object.entries(tests)) {
+                allTests.push({
+                  category,
+                  testType,
+                  price: testData.price,
+                  availability: testData,
+                });
+              }
+            }
+
+            // Populate test type dropdown
+            allTests.forEach((test) => {
+              const option = document.createElement("option");
+              option.value = JSON.stringify(test); // Pass the full test data
+              option.innerText = `${test.testType} (₹${test.price})`;
+              testTypeDropdown.appendChild(option);
+            });
+
+            // Update available dates and times when a test type is selected
+            testTypeDropdown.addEventListener("change", () => {
+              const selectedTest = JSON.parse(testTypeDropdown.value); // Parse the selected test data
+              const availability = selectedTest.availability;
+
+              // Display price
+              testDetails.innerText = `Selected Test: ${selectedTest.testType}\nPrice: ₹${selectedTest.price}`;
+
+              // Populate dates and times
+              dateDropdown.innerHTML = "";
+              timeDropdown.innerHTML = "";
+
+              const dates = Object.keys(availability).filter(
+                (key) => key !== "price"
+              );
+              if (dates.length === 0) {
+                dateDropdown.innerHTML =
+                  "<option disabled>No dates available</option>";
+                return;
+              }
+
+              dates.forEach((date) => {
+                const dateOption = document.createElement("option");
+                dateOption.value = date;
+                dateOption.innerText = date;
+                dateDropdown.appendChild(dateOption);
+              });
+
+              const updateTimeDropdown = (selectedDate) => {
+                timeDropdown.innerHTML = "";
+                const timeSlots = availability[selectedDate];
+
+                if (timeSlots) {
+                  Object.entries(timeSlots).forEach(([time, slotInfo]) => {
+                    if (slotInfo.slots > 0) {
+                      const timeOption = document.createElement("option");
+                      timeOption.value = time;
+                      timeOption.innerText = `${time} (Available Slots: ${slotInfo.slots})`;
+                      timeDropdown.appendChild(timeOption);
+                    }
+                  });
+                } else {
+                  timeDropdown.innerHTML =
+                    "<option disabled>No times available</option>";
+                }
+              };
+
+              updateTimeDropdown(dates[0]); // Default to the first date
+              dateDropdown.addEventListener("change", () =>
+                updateTimeDropdown(dateDropdown.value)
+              );
+            });
+          })
+          .catch((error) => {
+            console.error("Error fetching test data:", error);
+            alert("Unable to fetch test data. Please try again later.");
+          });
+      }
+
+      function showHospitalPopup(hospitalName) {
+        console.log("Displaying popup for hospital:", hospitalName);
+        document.getElementById("hospital-name-display").textContent =
+          hospitalName; // Show name on the popup
+        document.getElementById("hospital-name").value = hospitalName; // Store name in hidden input
+        console.log(
+          "Hidden input value set to:",
+          document.getElementById("hospital-name").value
+        ); // Log the value
+        document.getElementById("overlay").style.display = "block"; // Show the overlay
+        document.getElementById("hospital-popup").style.display = "block"; // Show the hospital popup
+      }
+
+      function showTestSlotForm() {
+        console.log("Switching to test slot form...");
+        closePopup("hospital-popup"); // Close the current popup
+        document.getElementById("test-slot-popup").style.display = "block"; // Show test slot form
+      }
+
+      function closePopup(popupId) {
+        document.getElementById(popupId).style.display = "none";
+        document.getElementById("overlay").style.display = "none"; // Hide overlay when closing any popup
+      }
+
+      function submitTestSlot(event) {
+        event.preventDefault();
+        console.log("Submitting test slot booking...");
+
+        const hospitalName = document
+          .getElementById("hospital-name-display")
+          .innerText.trim();
+        const selectedTestData = JSON.parse(
+          document.getElementById("test-type").value
+        );
+        const testCategory = selectedTestData.category;
+        const testType = selectedTestData.testType;
+        const testDate = document.getElementById("test-date").value.trim();
+        const testTime = document.getElementById("test-time").value.trim();
+        const patientName = document
+          .getElementById("patient-name")
+          .value.trim();
+        const patientPhone = document
+          .getElementById("patient-phone")
+          .value.trim();
+        const patientEmail = document
+          .getElementById("patient-email")
+          .value.trim();
+        const prescriptionFile =
+          document.getElementById("prescription-pdf").files[0];
+
+        if (!prescriptionFile) {
+          alert("Please upload a prescription PDF.");
+          return;
+        }
+
+        if (!hospitalName) {
+          alert(
+            "Hospital name is missing. Please refresh the page or contact support."
+          );
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("hospital_name", hospitalName);
+        formData.append("test_category", testCategory);
+        formData.append("test_type", testType);
+        formData.append("test_date", testDate);
+        formData.append("test_time", testTime);
+        formData.append("patient_name", patientName);
+        formData.append("patient_phone", patientPhone);
+        formData.append("patient_email", patientEmail);
+        formData.append("prescription_pdf", prescriptionFile);
+
+        fetch("/book-test", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Response from booking API:", data);
+            if (data.error) {
+              alert(`Error: ${data.error}`);
+            } else {
+              alert(
+                `Test Slot Registered Successfully!\nSlot Code: ${data.test_slot_code}`
+              );
+              closePopup("test-slot-popup");
+            }
+          })
+          .catch((error) => {
+            console.error("Error booking test slot:", error);
+            alert(
+              "An error occurred while booking the test slot. Please try again later."
+            );
+          });
+      }
+
+      function redirectToDocPage() {
+        const hospitalName = document.getElementById("hospital-name").value; // Use 'value' instead of 'innerText'
+        console.log("Redirecting to doctor page for hospital:", hospitalName);
+
+        // Redirect to the /doctors route with the hospital name as a query parameter
+        window.location.href = `/doclist?hospital=${encodeURIComponent(
+          hospitalName
+        )}`;
+      }
+
+      // Initialize the process
+      getLocationAndPopulateHospitals();
+    </script>
+  </body>
+</html>

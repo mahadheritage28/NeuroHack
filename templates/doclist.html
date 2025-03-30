@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Doctors</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #ffe6e6;
+        color: #333;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      h1,
+      h2 {
+        color: #009688;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      p {
+        margin: 5px 0;
+        color: #555;
+      }
+
+      .card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+      }
+
+      .card h2 {
+        font-size: 20px;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .card p {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+      }
+
+      .horizontal-menu {
+        display: flex;
+        overflow-x: auto;
+        gap: 15px;
+        margin-bottom: 20px;
+        padding: 10px;
+        scrollbar-width: thin;
+        scrollbar-color: #009688 transparent;
+      }
+
+      .horizontal-menu::-webkit-scrollbar {
+        height: 8px;
+      }
+
+      .horizontal-menu::-webkit-scrollbar-thumb {
+        background-color: #009688;
+        border-radius: 10px;
+      }
+
+      .horizontal-menu::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .horizontal-menu button {
+        background: none;
+        border: 2px solid #009688;
+        color: #009688;
+        padding: 10px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s, transform 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        white-space: nowrap;
+      }
+
+      .horizontal-menu button.active,
+      .horizontal-menu button:hover {
+        background-color: #009688;
+        color: white;
+        transform: scale(1.05);
+      }
+
+      .horizontal-menu button span {
+        font-size: 20px;
+      }
+
+      /* Modal Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        z-index: 1000;
+        max-width: 500px;
+        width: 90%;
+      }
+
+      .modal h2 {
+        margin-top: 0;
+      }
+
+      .modal-content {
+        margin-top: 15px;
+      }
+
+      /* Scrollable Form */
+      .scrollable-form {
+        overflow-y: auto; /* Enable vertical scrolling */
+        padding: 10px;
+        max-height: calc(
+          80vh - 40px
+        ); /* Adjust height based on modal content */
+      }
+
+      /* Fieldset and Legend */
+      fieldset {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 20px;
+        background-color: #fff; /* Ensure consistent background */
+      }
+
+      legend {
+        padding: 0 10px;
+        font-weight: bold;
+        color: #009688;
+      }
+
+      /* Labels and Inputs */
+      form label {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 5px;
+      }
+
+      form input,
+      form select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+      }
+
+      form input:focus,
+      form select:focus {
+        outline: none;
+        border-color: #009688;
+        box-shadow: 0 0 5px rgba(0, 150, 136, 0.5);
+      }
+
+      /* Form Actions */
+      .form-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      .form-actions button {
+        flex: 1;
+        padding: 10px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        background-color: #009688;
+        color: white;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+      }
+
+      .form-actions button:hover {
+        background-color: #00796b;
+      }
+
+      /* Button: Close */
+      .form-actions button:nth-child(2) {
+        background-color: #e57373;
+      }
+
+      .form-actions button:nth-child(2):hover {
+        background-color: #d32f2f;
+      }
+
+      /* Placeholder Styling */
+      form input::placeholder,
+      form select::placeholder {
+        color: #aaa;
+        font-style: italic;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .scrollable-form {
+          max-height: calc(70vh - 40px);
+        }
+
+        .form-actions button {
+          font-size: 14px;
+        }
+      }
+
+      /* Close Button */
+      .modal button {
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        background-color: #e57373;
+        color: white;
+        font-weight: bold;
+      }
+
+      .modal button:hover {
+        background-color: #d32f2f;
+      }
+
+      /* Utility Classes */
+      .text-center {
+        text-align: center;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .search-bar {
+        display: flex;
+        margin-bottom: 20px;
+      }
+
+      .search-bar input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #009688;
+        border-radius: 4px 0 0 4px;
+        font-size: 16px;
+      }
+
+      .search-bar button {
+        background-color: #009688;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 0 4px 4px 0;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      .search-bar button:hover {
+        background-color: #00796b;
+      }
+
+      /* Navbar Styles */
+      .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px 20px;
+        background-color: #ffe6e6;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+      }
+
+      /* Logo Section */
+      .navbar-logo {
+        display: flex;
+        align-items: center;
+      }
+
+      .logo-img {
+        width: 50px;
+        height: auto;
+        margin-right: 8px;
+      }
+
+      .logo-name {
+        font-size: 22px;
+        font-weight: bold;
+        color: #009688;
+      }
+
+      /* Navbar Links */
+      .navbar-links {
+        list-style: none;
+        display: flex;
+        gap: 15px; /* Adjusted spacing between links */
+        margin-left: auto; /* Push links to the right */
+        padding: 0;
+      }
+
+      .navbar-links li {
+        display: inline;
+      }
+
+      .navbar-links a {
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: 500;
+        color: #333;
+        padding: 8px 12px;
+        border-radius: 8px;
+        transition: background-color 0.3s ease, color 0.3s;
+      }
+
+      .navbar-links a:hover {
+        background-color: #ffcccc;
+        color: #000;
+      }
+
+      /* Responsive Navbar */
+      @media (max-width: 768px) {
+        .navbar {
+          flex-direction: column;
+          padding: 15px;
+        }
+
+        .navbar-logo {
+          justify-content: center;
+          width: 100%;
+          margin-bottom: 10px;
+        }
+
+        .navbar-links {
+          flex-direction: column;
+          align-items: center;
+          width: 100%;
+          margin: 10px 0;
+        }
+
+        .navbar-links a {
+          display: block;
+          width: 100%;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="navbar-logo">
+        <img src="static/AuraMedlogo.png" alt="AuraMed Logo" class="logo-img" />
+        <span class="logo-name">AuraMed</span>
+      </div>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/home"><i class="fas fa-home"></i> Home</a>
+        </li>
+        <li>
+          <a href=""><i class=""></i> </a>
+        </li>
+      </ul>
+    </nav>
+    <!-- Doctors List Page -->
+    <div class="container" id="doctors-page">
+      <h1>Doctors</h1>
+      <div class="horizontal-menu">
+        <div class="search-bar">
+          <input
+            type="text"
+            id="doctor-search"
+            placeholder="Search Doctors by Name or Specialization"
+            oninput="searchDoctors()"
+          />
+          <button type="button">Search</button>
+        </div>
+      </div>
+
+      <div id="doctors-grid" class="grid"></div>
+    </div>
+
+    <div id="doctor-details-modal" class="modal">
+      <h2 id="doctor-modal-name"></h2>
+      <p>
+        <strong><i class="fa fa-user-md"></i> Specialization:</strong>
+        <span id="doctor-modal-specialization"></span>
+      </p>
+      <p>
+        <strong><i class="fa fa-hospital"></i> Hospital:</strong>
+        <span id="doctor-modal-hospital"></span>
+      </p>
+      <p>
+        <strong><i class="fa fa-dollar-sign"></i> Fees:</strong>
+        <span id="doctor-modal-fees"></span>
+      </p>
+      <div id="doctor-modal-description"></div>
+      <button id="book-appointment">
+        <i class="fa fa-calendar-check"></i> Book Appointment
+      </button>
+      <button id="request-video-call" onclick="requestVideoCall()">
+        <i class="fa fa-video"></i> Request Video Call
+      </button>
+      <button onclick="closeModal('doctor-details-modal')">
+        <i class="fa fa-times-circle"></i> Close
+      </button>
+    </div>
+
+    <div id="appointment-form" class="modal">
+      <h2><i class="fa fa-calendar-alt"></i> Book Appointment</h2>
+      <div class="modal-content">
+        <div class="scrollable-form">
+          <form id="appointmentForm">
+            <fieldset>
+              <legend><i class="fa fa-user-md"></i> Doctor Details</legend>
+              <p>
+                <strong>Doctor:</strong> <span id="form-doctor-name"></span>
+              </p>
+              <p>
+                <strong
+                  ><i class="fa fa-stethoscope"></i> Specialization:</strong
+                >
+                <span id="form-doctor-specialization"></span>
+              </p>
+              <p>
+                <strong><i class="fa fa-hospital"></i> Hospital:</strong>
+                <span id="form-doctor-hospital"></span>
+              </p>
+            </fieldset>
+            <fieldset>
+              <legend>
+                <i class="fa fa-calendar"></i> Appointment Details
+              </legend>
+              <label for="appointmentDate"
+                ><i class="fa fa-calendar-day"></i> Select Date:</label
+              >
+              <select id="appointmentDate" required></select>
+
+              <label for="appointmentTime"
+                ><i class="fa fa-clock"></i> Select Time:</label
+              >
+              <select id="appointmentTime" required></select>
+            </fieldset>
+            <fieldset>
+              <legend><i class="fa fa-user"></i> Your Details</legend>
+              <label for="userName"
+                ><i class="fa fa-id-card"></i> Your Name:</label
+              >
+              <input
+                type="text"
+                id="userName"
+                placeholder="Enter your full name"
+                required
+              />
+
+              <label for="userContact"
+                ><i class="fa fa-phone"></i> Contact Number:</label
+              >
+              <input
+                type="tel"
+                id="userContact"
+                placeholder="Enter your phone number"
+                required
+                pattern="[0-9]{10}"
+              />
+
+              <label for="userEmail"
+                ><i class="fa fa-envelope"></i> Email Address:</label
+              >
+              <input
+                type="email"
+                id="userEmail"
+                placeholder="Enter your email address"
+                required
+              />
+            </fieldset>
+            <div class="form-actions">
+              <button type="submit"><i class="fa fa-check"></i> Confirm</button>
+              <button type="button" onclick="closeModal('appointment-form')">
+                <i class="fa fa-times-circle"></i> Close
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Font Awesome CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+
+    <script>
+      const specializations = [
+        { specialization: "ENT Specialist", icon: "👂" },
+        { specialization: "Neurology", icon: "🧠" },
+        { specialization: "Dermatologist", icon: "🌟" },
+        { specialization: "Pediatrician", icon: "🍼" },
+        { specialization: "Cardiologist", icon: "❤️" },
+        { specialization: "General Medicine", icon: "💊" },
+        { specialization: "Orthopedic Surgeon", icon: "🦴" },
+        { specialization: "Urologist", icon: "🚹" },
+      ];
+
+      const menu = document.querySelector(".horizontal-menu");
+
+      function createButtons() {
+        // Add "All" button
+        const allButton = document.createElement("button");
+        allButton.innerHTML = `<span>🔍</span> All`;
+        allButton.classList.add("active");
+        allButton.onclick = (event) => filterDoctors("All", event); // Updated here
+        menu.appendChild(allButton);
+
+        // Add buttons for each specialization
+        specializations.forEach((item) => {
+          const button = document.createElement("button");
+          button.innerHTML = `<span>${item.icon}</span> ${item.specialization}`;
+          button.onclick = (event) => filterDoctors(item.specialization, event);
+          menu.appendChild(button);
+        });
+      }
+
+      createButtons();
+
+      function filterDoctors(specialization, event) {
+        const buttons = document.querySelectorAll(".horizontal-menu button");
+        buttons.forEach((button) => button.classList.remove("active"));
+
+        // Simulate filtering cards (example only; actual filtering depends on your HTML structure)
+        const gridItems = document.querySelectorAll("#doctors-grid .card");
+        gridItems.forEach((card) => {
+          card.style.display =
+            specialization === "All" ||
+            card.textContent.includes(specialization)
+              ? ""
+              : "none";
+        });
+
+        event.target.classList.add("active");
+      }
+
+      function searchDoctors() {
+        const query = document
+          .getElementById("doctor-search")
+          .value.toLowerCase();
+        const doctors = document.querySelectorAll("#doctors-grid .card");
+        if (!doctors.length) {
+          console.warn("No doctor cards available for searching.");
+          return;
+        }
+        doctors.forEach((doctor) => {
+          const doctorName = doctor
+            .querySelector("h2")
+            .textContent.toLowerCase();
+          const doctorSpecialization = doctor
+            .querySelector("p")
+            .textContent.toLowerCase();
+          doctor.style.display =
+            doctorName.includes(query) || doctorSpecialization.includes(query)
+              ? ""
+              : "none";
+        });
+      }
+
+      let doctors = [];
+      let hospital = "";
+
+      // Load doctors on page load
+      window.onload = function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        hospital = urlParams.get("hospital");
+        if (hospital) {
+          loadDoctors();
+        }
+      };
+
+      function loadDoctors() {
+        fetch(`/doclist/doctors?hospital=${encodeURIComponent(hospital)}`)
+          .then((response) => response.json())
+          .then((data) => {
+            doctors = data;
+            renderDoctorGrid(doctors);
+          })
+          .catch((err) => console.error("Error loading doctors:", err));
+      }
+
+      function renderDoctorGrid(doctorList) {
+        const grid = document.getElementById("doctors-grid");
+        grid.innerHTML = ""; // Clear existing content
+
+        doctorList.forEach((doctor) => {
+          const specializationIconMap = Object.fromEntries(
+            specializations.map((item) => [item.specialization, item.icon])
+          );
+
+          const card = `
+    <div class="card" onclick="showDoctorModal('${doctor.id}')">
+        <h2>🩺 ${doctor.name}</h2>
+        <p>${
+          specializationIconMap[doctor.specialization] || "🔍"
+        } Specialization: ${doctor.specialization}</p>
+    </div>
+`;
+
+          grid.insertAdjacentHTML("beforeend", card);
+        });
+      }
+
+      function showDoctorModal(doctorId) {
+        fetch(`/doclist/doctor/${doctorId}`)
+          .then((response) => response.json())
+          .then((doctor) => {
+            if (doctor) {
+              // Populate modal with doctor details
+              document.getElementById("doctor-modal-name").innerText =
+                doctor.name;
+              document.getElementById("doctor-modal-specialization").innerText =
+                doctor.specialization;
+              document.getElementById("doctor-modal-hospital").innerText =
+                doctor.hospital;
+              document.getElementById(
+                "doctor-modal-fees"
+              ).innerText = `₹${doctor.fees}`; // Populate Fees Field
+              document.getElementById("doctor-modal-description").innerHTML = `
+    <p><strong><i class="fas fa-graduation-cap"></i> Degrees:</strong> ${doctor.degrees.join(
+      ", "
+    )}</p>
+    <p><strong><i class="fas fa-briefcase-medical"></i> Experience:</strong> ${
+      doctor.experience
+    }</p>
+    <p><strong><i class="fas fa-award"></i> Achievements:</strong> ${doctor.achievements.join(
+      ", "
+    )}</p>`;
+
+              document.getElementById("book-appointment").onclick =
+                function () {
+                  openAppointmentForm(doctor);
+                };
+
+              // Show the doctor details modal
+              document.getElementById("doctor-details-modal").style.display =
+                "block";
+            }
+          })
+          .catch((err) => console.error("Error fetching doctor details:", err));
+      }
+
+      function openAppointmentForm(doctor) {
+        document.getElementById("form-doctor-name").innerText = doctor.name;
+        document.getElementById("form-doctor-specialization").innerText =
+          doctor.specialization;
+        document.getElementById("form-doctor-hospital").innerText =
+          doctor.hospital;
+
+        const availability = doctor.availability;
+        const dateSelect = document.getElementById("appointmentDate");
+        dateSelect.innerHTML = '<option value="">Select Date</option>';
+        const timeSelect = document.getElementById("appointmentTime");
+        timeSelect.innerHTML = '<option value="">Select Time</option>'; // Clear previous times
+
+        // Populate the availability dates in the dropdown
+        Object.keys(availability).forEach((date) => {
+          const dateOption = document.createElement("option");
+          dateOption.value = date;
+          dateOption.innerText = date;
+          dateSelect.appendChild(dateOption);
+        });
+
+        // When a date is selected, populate the times
+        dateSelect.onchange = function () {
+          const selectedDate = dateSelect.value;
+          timeSelect.innerHTML = '<option value="">Select Time</option>'; // Clear previous time options
+
+          if (selectedDate && availability[selectedDate]) {
+            Object.keys(availability[selectedDate]).forEach((time) => {
+              const timeOption = document.createElement("option");
+              timeOption.value = time;
+              timeOption.innerText =
+                time +
+                " - Available slots: " +
+                availability[selectedDate][time];
+              timeSelect.appendChild(timeOption);
+            });
+          }
+        };
+
+        // Display the appointment form
+        document.getElementById("appointment-form").style.display = "block";
+        // Hide the doctor details modal when the form is shown
+        document.getElementById("doctor-details-modal").style.display = "none";
+      }
+
+      function closeModal(id) {
+        document.getElementById(id).style.display = "none";
+      }
+
+      document.getElementById("appointmentForm").onsubmit = function (event) {
+        event.preventDefault(); // Prevent form from submitting
+        bookAppointment(event); // Call the bookAppointment function
+      };
+
+      function bookAppointment(event) {
+        // Get the patient's details from the form
+        const name = document.getElementById("userName").value;
+        const phone = document.getElementById("userContact").value;
+        const email = document.getElementById("userEmail").value;
+        const date = document.getElementById("appointmentDate").value;
+        const time = document.getElementById("appointmentTime").value; // Fixed .value
+
+        // Get the doctor's details from the DOM
+        const doctorName =
+          document.getElementById("form-doctor-name").innerText;
+        const doctorSpecialization = document.getElementById(
+          "form-doctor-specialization"
+        ).innerText;
+        const doctorHospital = document.getElementById(
+          "form-doctor-hospital"
+        ).innerText;
+
+        // Combine date and time into one value
+        const dateTime = `${date}T${time}`;
+
+        // Check if all required fields are filled
+        if (
+          !name ||
+          !phone ||
+          !email ||
+          !date ||
+          !time ||
+          !doctorName ||
+          !doctorSpecialization ||
+          !doctorHospital
+        ) {
+          alert("Please fill in all the fields.");
+          return;
+        }
+
+        // Send data to the backend
+        fetch("/doclist/appointment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            patient_name: name,
+            doctor_name: doctorName,
+            doctor_specialization: doctorSpecialization,
+            doctor_hospital: doctorHospital,
+            phone: phone,
+            email: email,
+            date_time: dateTime,
+          }),
+        })
+          .then((response) => response.json())
+          .then((result) => {
+            if (result.message) {
+              alert(result.message); // Show success message
+            } else {
+              alert("Appointment booked successfully!");
+            }
+
+            // Reload the page to show the updated content (no redirect)
+            location.reload();
+
+            closeModal("appointment-form"); // Close the modal
+          })
+          .catch((err) => {
+            console.error("Error booking appointment:", err);
+            alert("There was an error booking the appointment.");
+          });
+      }
+      function requestVideoCall() {
+        // Collect doctor and patient details
+        const doctorName =
+          document.getElementById("doctor-modal-name").textContent;
+        const specialization = document.getElementById(
+          "doctor-modal-specialization"
+        ).textContent;
+        const hospital = document.getElementById(
+          "doctor-modal-hospital"
+        ).textContent;
+        const fees = document.getElementById("doctor-modal-fees").textContent;
+
+        // Mock patient details (replace with real data in actual implementation)
+        const patientDetails = {
+          name: "John Doe",
+          contact: "1234567890",
+          email: "johndoe@example.com",
+        };
+
+        // Construct the request payload
+        const videoCallRequest = {
+          doctor: {
+            name: doctorName,
+            specialization: specialization,
+            hospital: hospital,
+            fees: fees,
+          },
+          patient: patientDetails,
+          status: "request",
+          timestamp: new Date().toISOString(),
+        };
+
+        // Send the request to the server
+        fetch("/waiting-list/video-call-requests", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(videoCallRequest),
+        })
+          .then((response) => {
+            if (response.ok) {
+              alert("Video call request sent successfully.");
+            } else {
+              alert("Failed to send video call request.");
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("An error occurred while sending the video call request.");
+          });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auth Page</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Arial", sans-serif;
+        background: linear-gradient(
+          to bottom right,
+          #ffe6e6,
+          #ffffff
+        ); /* Light pink gradient */
+        height: 100vh;
+        display: flex;
+        flex-direction: column; /* Stack header and content */
+        align-items: center;
+        justify-content: flex-start; /* Align content starting from top */
+        overflow: hidden;
+      }
+
+      /* Floating Orbs */
+      .orb {
+        position: absolute;
+        border-radius: 50%;
+        background-color: rgba(0, 150, 136, 0.2); /* Teal with transparency */
+        backdrop-filter: blur(10px);
+      }
+
+      .orb1 {
+        animation: orb1 3s ease-in-out infinite;
+      }
+      .orb2 {
+        animation: orb2 4s ease-in-out infinite;
+      }
+      .orb3 {
+        animation: orb3 3.5s ease-in-out infinite;
+      }
+      .orb4 {
+        animation: orb4 5s ease-in-out infinite;
+      }
+      .orb5 {
+        animation: orb1 4.5s ease-in-out infinite;
+      }
+      .orb6 {
+        animation: orb2 3.5s ease-in-out infinite;
+      }
+      .orb7 {
+        animation: orb3 5s ease-in-out infinite;
+      }
+      .orb8 {
+        animation: orb4 4s ease-in-out infinite;
+      }
+
+      @keyframes orb1 {
+        0% {
+          transform: translateY(0) translateX(0);
+        }
+        50% {
+          transform: translateY(-20px) translateX(10px);
+        }
+        100% {
+          transform: translateY(0) translateX(0);
+        }
+      }
+
+      @keyframes orb2 {
+        0% {
+          transform: translateY(0) translateX(0);
+        }
+        50% {
+          transform: translateY(-20px) translateX(-10px);
+        }
+        100% {
+          transform: translateY(0) translateX(0);
+        }
+      }
+
+      @keyframes orb3 {
+        0% {
+          transform: translateY(0) translateX(0);
+        }
+        50% {
+          transform: translateY(10px) translateX(15px);
+        }
+        100% {
+          transform: translateY(0) translateX(0);
+        }
+      }
+
+      @keyframes orb4 {
+        0% {
+          transform: translateY(0) translateX(0);
+        }
+        50% {
+          transform: translateY(-25px) translateX(5px);
+        }
+        100% {
+          transform: translateY(0) translateX(0);
+        }
+      }
+
+      /* Auth Container */
+      /* Auth Container */
+      .auth-container {
+        background-color: #fff; /* White for card backgrounds */
+        backdrop-filter: blur(10px);
+        border-radius: 10px;
+        padding: 32px;
+        max-width: 360px;
+        width: 100%;
+        max-height: 80vh; /* Restrict maximum height to 80% of the viewport */
+        overflow-y: auto; /* Enable vertical scrolling */
+        position: relative;
+        z-index: 10;
+        margin-top: 120px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional: Add a subtle shadow for better visual appeal */
+      }
+
+      /* Auth Title */
+      .auth-title {
+        font-size: 2rem;
+        font-weight: bold;
+        text-align: center;
+        color: #333; /* Dark gray for headings */
+        margin-bottom: 24px;
+      }
+
+      /* Input Group */
+      .input-group {
+        margin-bottom: 16px;
+        position: relative;
+        margin-left: -10px;
+        margin-right: 10px;
+        align-items: center; /* Vertically aligns items (label and input) in the middle */
+      }
+
+      .input-group label {
+        display: block; /* Ensure labels appear above inputs */
+        color: #333; /* Dark gray for visibility */
+        font-size: 1rem; /* Standard readable font size */
+        margin-bottom: 8px; /* Add space between label and input */
+        text-align: left; /* Align text to the left */
+      }
+
+      .input-group input {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        background-color: #ffe6e6; /* Light pink */
+        color: #666; /* Medium gray for text */
+        border: none;
+        outline: none;
+        font-size: 1rem;
+      }
+
+      /* Auth Button */
+      .auth-button {
+        width: 100%;
+        padding: 12px;
+        background-color: #009688; /* Teal */
+        color: #fff; /* White for contrast */
+        font-weight: bold;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .auth-button:hover {
+        background-color: #00796b; /* Darker teal */
+      }
+
+      /* Separator */
+      .separator {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 24px 0;
+      }
+
+      .separator span {
+        margin: 0 16px;
+        color: #666; /* Medium gray */
+      }
+
+      .separator div {
+        flex-grow: 1;
+        border-top: 1px solid #ccc; /* Subtle light gray */
+      }
+
+      /* Auth Footer */
+      .auth-footer {
+        text-align: center;
+        margin-top: 24px;
+      }
+
+      .auth-footer a {
+        color: #009688; /* Teal */
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .auth-footer a:hover {
+        text-decoration: underline;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      /* Site Header */
+      .site-header {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start; /* Align logo to the left */
+        padding: 20px; /* Adjust padding as needed */
+        background-color: #ffe6e6; /* Set background color of the header */
+        width: 100%; /* Ensures header spans across the full width */
+        position: fixed; /* Fixed header at the top */
+        top: 0;
+        left: 0;
+        z-index: 1000;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start; /* Align logo and name to the left */
+      }
+
+      .logo-img {
+        width: 80px; /* Adjust image size as needed */
+        height: auto; /* Maintain aspect ratio */
+        margin-right: 15px; /* Space between image and name */
+      }
+
+      .logo-name {
+        font-size: 24px;
+        font-weight: bold;
+        color: #009688; /* Set the color to #009688 */
+      }
+
+      /* Modal Styles */
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 150, 136, 0.9); /* Teal with transparency */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        visibility: hidden;
+        opacity: 0;
+        transition: visibility 0.3s, opacity 0.3s;
+        z-index: 1000;
+      }
+
+      .modal.show {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      .modal-content {
+        background-color: #fff; /* White for card backgrounds */
+        backdrop-filter: blur(10px);
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        width: 90%;
+        max-width: 430px;
+        color: #333; /* Dark gray for text */
+        box-sizing: border-box;
+      }
+
+      .modal-content input {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+        border-radius: 8px;
+        background-color: #ffe6e6; /* Light pink */
+        color: #666; /* Medium gray for text */
+        border: none;
+        outline: none;
+        font-size: 1rem;
+      }
+
+      .modal-header {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        color: #333; /* Dark gray */
+      }
+
+      .modal-footer button {
+        margin-top: 10px;
+      }
+
+      /* Orb Sizes and Positions */
+      .orb1 {
+        width: 70px;
+        height: 70px;
+        left: 15%;
+        top: 30%;
+      }
+      .orb2 {
+        width: 80px;
+        height: 80px;
+        left: 80%;
+        top: 50%;
+      }
+      .orb3 {
+        width: 90px;
+        height: 90px;
+        left: 50%;
+        top: 20%;
+      }
+      .orb4 {
+        width: 60px;
+        height: 60px;
+        left: 10%;
+        top: 80%;
+      }
+      .orb5 {
+        width: 70px;
+        height: 70px;
+        left: 70%;
+        top: 70%;
+      }
+      .orb6 {
+        width: 80px;
+        height: 80px;
+        left: 30%;
+        top: 10%;
+      }
+      .orb7 {
+        width: 85px;
+        height: 85px;
+        left: 60%;
+        top: 40%;
+      }
+      .orb8 {
+        width: 75px;
+        height: 75px;
+        left: 20%;
+        top: 40%;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="logo">
+        <img src="static/AuraMedlogo.png" alt="AuraMed Logo" class="logo-img" />
+        <span class="logo-name">AuraMed</span>
+      </div>
+    </header>
+
+    <div
+      class="orb orb1"
+      style="width: 70px; height: 70px; left: 15%; top: 30%"
+    ></div>
+    <div
+      class="orb orb2"
+      style="width: 80px; height: 80px; left: 80%; top: 50%"
+    ></div>
+    <div
+      class="orb orb3"
+      style="width: 90px; height: 90px; left: 50%; top: 20%"
+    ></div>
+    <div
+      class="orb orb4"
+      style="width: 60px; height: 60px; left: 10%; top: 80%"
+    ></div>
+    <div
+      class="orb orb5"
+      style="width: 70px; height: 70px; left: 70%; top: 70%"
+    ></div>
+    <div
+      class="orb orb6"
+      style="width: 80px; height: 80px; left: 30%; top: 10%"
+    ></div>
+    <div
+      class="orb orb7"
+      style="width: 85px; height: 85px; left: 60%; top: 40%"
+    ></div>
+    <div
+      class="orb orb8"
+      style="width: 75px; height: 75px; left: 20%; top: 40%"
+    ></div>
+
+    <div class="auth-container">
+      <div id="login-form">
+        <h2 class="auth-title">Welcome Back</h2>
+        <form action="/login" method="POST" id="login-form-element">
+          <div class="input-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="login-email"
+              name="email"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+          <div class="input-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+          <button type="submit" class="auth-button">Log In</button>
+        </form>
+        <div class="separator">
+          <div></div>
+          <span>Or continue with</span>
+          <div></div>
+        </div>
+        <button
+          type="button"
+          class="auth-button"
+          id="google-sign-in"
+          onclick="window.location.href='/login/google'"
+        >
+          Continue with Google
+        </button>
+        <div class="auth-footer">
+          <p>Don't have an account? <a id="toggle-to-signup">Sign Up</a></p>
+        </div>
+      </div>
+
+      <div id="signup-form" class="hidden">
+        <h2 class="auth-title">Create Account</h2>
+        <form action="/signup" method="POST" id="signup-form-element">
+          <div class="input-group">
+            <label for="name">Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              placeholder="Enter your name"
+              required
+            />
+          </div>
+          <div class="input-group">
+            <label for="signup-email">Email</label>
+            <input
+              type="email"
+              id="signup-email"
+              name="email"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+          <div class="input-group">
+            <label for="signup-password">Password</label>
+            <input
+              type="password"
+              id="signup-password"
+              name="password"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+          <div class="password-suggestion">
+            <p>Password requirements:</p>
+            <ul>
+              <li>At least 8 characters</li>
+              <li>One uppercase letter</li>
+              <li>One lowercase letter</li>
+              <li>One number</li>
+              <li>One special character</li>
+              <li>No spaces</li>
+            </ul>
+          </div>
+          <div class="input-group">
+            <label for="confirm-password">Confirm Password</label>
+            <input
+              type="password"
+              id="confirm-password"
+              name="confirm_password"
+              placeholder="Confirm your password"
+              required
+            />
+          </div>
+          <button type="submit" class="auth-button">Sign Up</button>
+        </form>
+        <div class="separator">
+          <div></div>
+          <span>Or continue with</span>
+          <div></div>
+        </div>
+        <button
+          type="button"
+          class="auth-button"
+          id="google-sign-up"
+          onclick="window.location.href='/login/google'"
+        >
+          Sign Up with Google
+        </button>
+        <div class="auth-footer">
+          <p>Already have an account? <a id="toggle-to-login">Log In</a></p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      
+
+// Select DOM elements
+const toggleToSignup = document.getElementById("toggle-to-signup");
+const toggleToLogin = document.getElementById("toggle-to-login");
+const loginForm = document.getElementById("login-form"); // ID of the login form container
+const signupForm = document.getElementById("signup-form"); // ID of the signup form container
+
+// Function to toggle to the signup form
+toggleToSignup.addEventListener("click", () => {
+  loginForm.classList.add("hidden"); // Hide the login form
+  signupForm.classList.remove("hidden"); // Show the signup form
+});
+
+// Function to toggle back to the login form
+toggleToLogin.addEventListener("click", () => {
+  signupForm.classList.add("hidden"); // Hide the signup form
+  loginForm.classList.remove("hidden"); // Show the login form
+});
+
+document
+  .getElementById("login-form-element")
+  .addEventListener("submit", async function (event) {
+    event.preventDefault();
+    console.log("Submitting login form...");
+
+    const email = document.getElementById("login-email").value;
+
+    // Validate email format
+    if (!validateEmail(email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
+    const formData = new FormData(event.target);
+    try {
+      const response = await fetch("/login", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const result = await response.json();
+      console.log("Result:", result);
+
+      if (result.success) {
+        window.location.href = result.redirect_url;
+      } else {
+        alert(result.message);
+      }
+    } catch (error) {
+      console.error("Error during form submission:", error);
+      alert("An error occurred. Please try again.");
+    }
+  });
+
+function validateEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+
+// Password validation function
+function validatePassword(password) {
+  const errors = [];
+
+  if (password.length < 8) {
+    errors.push("Password must be at least 8 characters long.");
+  }
+  if (!/[A-Z]/.test(password)) {
+    errors.push("Password must contain at least one uppercase letter.");
+  }
+  if (!/[a-z]/.test(password)) {
+    errors.push("Password must contain at least one lowercase letter.");
+  }
+  if (!/[0-9]/.test(password)) {
+    errors.push("Password must contain at least one number.");
+  }
+  if (!/[!@#$%^&*(),.?\":{}|<>]/.test(password)) {
+    errors.push("Password must contain at least one special character.");
+  }
+  if (/\s/.test(password)) {
+    errors.push("Password must not contain spaces.");
+  }
+
+  return errors;
+}
+
+// Signup form submission
+document.getElementById("signup-form-element").addEventListener("submit", async function (event) {
+  event.preventDefault(); // Prevent default form submission
+
+  const email = document.getElementById("signup-email").value;
+  const password = document.getElementById("signup-password").value;
+  const confirmPassword = document.getElementById("confirm-password").value;
+
+  // Validate email format
+  if (!validateEmail(email)) {
+    alert("Please enter a valid email address.");
+    return; // Stop form submission if email is invalid
+  }
+
+  // Validate password
+  const validationErrors = validatePassword(password);
+  if (validationErrors.length > 0) {
+    alert("Password validation failed:\n" + validationErrors.join("\n"));
+    return; // Stop form submission if validation fails
+  }
+
+  if (password !== confirmPassword) {
+    alert("Passwords do not match.");
+    return; // Stop form submission if passwords don't match
+  }
+
+  // Prepare form data
+  const formData = new FormData(this);
+
+  try {
+    // Send the signup data to the server
+    const response = await fetch("/signup", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (response.ok) {
+      const result = await response.json(); // Parse JSON response
+      if (result.success) {
+        // Redirect to the URL provided by the server
+        window.location.href = result.redirect_url;
+      } else {
+        alert(result.message); // Display server-side error message
+      }
+    } else {
+      alert("Failed to communicate with the server. Please try again.");
+    }
+  } catch (error) {
+    console.error("Error during signup:", error);
+    alert("An error occurred during signup. Please try again later.");
+  }
+});
+
+    </script>
+  </body>
+</html>
